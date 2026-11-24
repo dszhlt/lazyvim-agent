@@ -5,16 +5,8 @@ git tools to review what the agent did.
 
 **English** · [Русский](README.ru.md)
 
-```
-┌────────────────────────────────┬──────────────────────┐
-│ your code                      │ Claude Code          │
-│                                │                      │
-│ ── when Claude edits a file ── │ sees the open file   │
-│ proposed change as a diff:     │ and your selection   │
-│   <leader>aa  accept           │                      │
-│   <leader>ad  reject           │ <C-h> back to code   │
-└────────────────────────────────┴──────────────────────┘
-```
+![Claude Code in a right split next to neo-tree and the code](docs/screenshots/claude-panel.png)
+<sub>Claude Code in the right split: the file tree and code on the left, Claude's edit on the right.</sub>
 
 This is not a new plugin. It is a ready, tested set of
 [lazy.nvim](https://github.com/folke/lazy.nvim) specs that wires three
@@ -37,6 +29,9 @@ existing plugins together with keymaps that don't conflict:
 
 It sits on top of what LazyVim already has for git: lazygit, gitsigns hunks
 and the Snacks git pickers.
+
+![Claude Code picks up the file selected in neo-tree](docs/screenshots/claude-context.png)
+<sub>Claude knows what you are looking at: its input line shows the file selected in neo-tree as context.</sub>
 
 ## Requirements
 
