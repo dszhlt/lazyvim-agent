@@ -5,8 +5,8 @@ git tools to review what the agent did.
 
 **English** · [Русский](README.ru.md)
 
-![Claude Code in a right split next to neo-tree and the code](docs/screenshots/claude-panel.png)
-<sub>Claude Code in the right split: the file tree and code on the left, Claude's edit on the right.</sub>
+![An agent's edit shown inline: removed lines in red above the new ones](docs/screenshots/live-inline-diff.png)
+<sub>Codex rewrites a paragraph in the right panel, and the same edit shows up inline on the left: removed lines in red above the new ones, with the change size next to the cursor.</sub>
 
 This is mostly not a new plugin. It is a ready, tested set of
 [lazy.nvim](https://github.com/folke/lazy.nvim) specs that wires three
@@ -35,8 +35,8 @@ module of its own:
 It sits on top of what LazyVim already has for git: lazygit, gitsigns hunks
 and the Snacks git pickers.
 
-![Claude Code picks up the file selected in neo-tree](docs/screenshots/claude-context.png)
-<sub>Claude knows what you are looking at: its input line shows the file selected in neo-tree as context.</sub>
+![The edited file opens by itself with the new block highlighted](docs/screenshots/live-follow.png)
+<sub>Codex adds touch controls: index.html opened by itself with the new block highlighted. style.css changed while the cursor was in the editor, so it was not pulled in front; a notification says where to jump.</sub>
 
 ## Requirements
 
