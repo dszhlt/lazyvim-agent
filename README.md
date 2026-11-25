@@ -36,7 +36,7 @@ It sits on top of what LazyVim already has for git: lazygit, gitsigns hunks
 and the Snacks git pickers.
 
 ![The edited file opens by itself with the new block highlighted](docs/screenshots/live-follow.png)
-<sub>Codex adds touch controls: index.html opened by itself with the new block highlighted. style.css changed while the cursor was in the editor, so it was not pulled in front; a notification says where to jump.</sub>
+<sub>Codex adds touch controls: the new block in index.html is highlighted in the editor. style.css changed while the cursor was in the editor, so it was not pulled in front of you; a notification says where to jump.</sub>
 
 ## Requirements
 
@@ -82,7 +82,7 @@ To take only one half, import a single file:
    `<leader>aa` (or `:w`) accepts it, `<leader>ad` rejects it.
 4. In auto mode, or with any other agent, edits land on disk right away. Each
    edited file opens on the left at the changed spot, with removed lines shown
-   in red above the new green ones. Put the cursor on a change and press
+   in red above the new, highlighted ones. Put the cursor on a change and press
    `<leader>ay` to keep it or `<leader>an` to undo it; `]x` / `[x` walk through
    all changes, across files.
 5. Press `<leader>gv` to review everything that changed, then commit from
