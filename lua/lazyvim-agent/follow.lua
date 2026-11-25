@@ -847,6 +847,14 @@ local function parse_term(name)
 	return vim.fn.expand(cwd), vim.fs.basename(first)
 end
 
+--- The agent command running in terminal `buf`, if it is one.
+---@param buf integer
+---@return string?
+function M.agent_name(buf)
+	local _, exe = parse_term(api.nvim_buf_get_name(buf))
+	return exe and agents_set[exe] and exe or nil
+end
+
 local function on_term(buf)
 	local cwd, exe = parse_term(api.nvim_buf_get_name(buf))
 	if not exe then

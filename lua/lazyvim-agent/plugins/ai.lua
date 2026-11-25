@@ -9,6 +9,10 @@
 -- live by lazyvim-agent.follow: the edited file opens in the editor window,
 -- the changes are marked inline, and each one can be kept or undone.
 --
+-- Most <leader>a keys act on the current agent, whichever it is, so closing,
+-- hiding, sending code or a prompt works the same for Claude and the others
+-- (lua/lazyvim-agent/agents.lua).
+--
 -- <leader>ar lists the saved sessions of Claude, Codex and OpenCode for the
 -- current folder and resumes the one you pick (lua/lazyvim-agent/sessions.lua).
 --
@@ -56,28 +60,28 @@ return {
 		keys = {
 			{ "<leader>a", "", desc = "+ai", mode = { "n", "v" } },
 			{ "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Claude: toggle" },
-			{ "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Claude: focus" },
-			-- saved sessions of every agent in this folder, not only Claude's
-			{
-				"<leader>ar",
-				function()
-					require("lazyvim-agent.sessions").pick()
-				end,
-				desc = "Resume a session (Claude, Codex, OpenCode)",
-			},
-			{ "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Claude: continue last session" },
-			{ "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Claude: select model" },
-			{ "<leader>aq", "<cmd>ClaudeCodeClose<cr>", desc = "Claude: close" },
-			{ "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Claude: add current buffer" },
-			{ "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Claude: send selection" },
+			-- The keys below act on the current agent, whichever it is: the one
+			-- whose window you are in, else the one you used last
+			-- (lua/lazyvim-agent/agents.lua). They live in this spec so they also
+			-- replace the same keys of LazyVim's ai.claudecode extra.
+			-- stylua: ignore start
+			{ "<leader>af", function() require("lazyvim-agent.agents").focus() end, desc = "Agent: focus" },
+			{ "<leader>aq", function() require("lazyvim-agent.agents").quit() end, desc = "Agent: close (stop) it" },
+			{ "<leader>ab", function() require("lazyvim-agent.agents").add_file() end, desc = "Agent: add current file" },
+			{ "<leader>as", function() require("lazyvim-agent.agents").send_selection() end, mode = "x", desc = "Agent: send selection" },
 			{
 				"<leader>as",
-				"<cmd>ClaudeCodeTreeAdd<cr>",
-				desc = "Claude: add file",
+				function() require("lazyvim-agent.agents").add_tree_file() end,
+				desc = "Agent: add file",
 				ft = { "NvimTree", "neo-tree", "oil", "minifiles", "snacks_picker_list" },
 			},
-			{ "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Claude: accept diff" },
-			{ "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Claude: deny diff" },
+			{ "<leader>am", function() require("lazyvim-agent.agents").model() end, desc = "Agent: change model" },
+			{ "<leader>ar", function() require("lazyvim-agent.sessions").pick() end, desc = "Resume a session (Claude, Codex, OpenCode)" },
+			{ "<leader>aC", function() require("lazyvim-agent.agents").continue() end, desc = "Continue the latest session here" },
+			-- in Claude's proposed edit: accept / reject it; elsewhere: keep / undo the agent change under the cursor
+			{ "<leader>aa", function() require("lazyvim-agent.agents").accept() end, desc = "Accept (Claude diff or agent change)" },
+			{ "<leader>ad", function() require("lazyvim-agent.agents").reject() end, desc = "Reject (Claude diff or agent change)" },
+			-- stylua: ignore end
 		},
 	},
 
@@ -102,10 +106,10 @@ return {
 		-- stylua: ignore
 		keys = {
 			{ "<leader>ao", function() require("sidekick.cli").select({ filter = { installed = true } }) end, desc = "Agent: pick (Codex, OpenCode, Cursor…)" },
-			{ "<leader>aO", function() require("sidekick.cli").toggle() end, desc = "Agent: toggle window" },
-			{ "<leader>ap", function() require("sidekick.cli").prompt() end, mode = { "n", "x" }, desc = "Agent: prompt (explain, fix, review…)" },
-			{ "<leader>av", function() require("sidekick.cli").send({ msg = "{selection}" }) end, mode = "x", desc = "Agent: send selection" },
-			{ "<leader>aF", function() require("sidekick.cli").send({ msg = "{file}" }) end, desc = "Agent: send file" },
+			{ "<leader>aO", function() require("lazyvim-agent.agents").toggle() end, desc = "Agent: show / hide window" },
+			{ "<leader>ap", function() require("lazyvim-agent.agents").prompt() end, mode = { "n", "x" }, desc = "Agent: prompt (explain, fix, review…)" },
+			{ "<leader>av", function() require("lazyvim-agent.agents").send_selection() end, mode = "x", desc = "Agent: send selection" },
+			{ "<leader>aF", function() require("lazyvim-agent.agents").add_file() end, desc = "Agent: add current file" },
 		},
 	},
 
@@ -118,9 +122,12 @@ return {
 		config = function(_, opts)
 			require("lazyvim-agent.follow").setup(opts)
 			require("lazyvim-agent.sessions").setup()
+			require("lazyvim-agent.agents").setup()
 		end,
 		-- stylua: ignore
 		keys = {
+			{ "<leader>ah", function() require("lazyvim-agent.agents").hide_all() end, desc = "Agent: hide all windows (keep running)" },
+			{ "<leader>aQ", function() require("lazyvim-agent.agents").quit_all() end, desc = "Agent: close all agents" },
 			{ "]x", function() require("lazyvim-agent.follow").jump(1) end, desc = "Next agent change" },
 			{ "[x", function() require("lazyvim-agent.follow").jump(-1) end, desc = "Prev agent change" },
 			{ "<leader>ay", function() require("lazyvim-agent.follow").keep("hunk") end, desc = "Agent change: keep" },

@@ -69,15 +69,16 @@ To take only one half, import a single file:
 
 > **Note:** don't enable LazyVim's `ai.sidekick` extra at the same time: its
 > `<leader>aa`, `<leader>as`, `<leader>ad` and `<leader>af` keys clash with the
-> Claude keys here. LazyVim's `ai.claudecode` extra is fine; it uses the same keys.
+> agent keys here. LazyVim's `ai.claudecode` extra is fine: the keys here replace its keys.
 
 ## Usage
 
 1. Open a project and press `<leader>ac` (or run `:ClaudeCode`). Claude opens
    on the right. In a new folder it first asks whether you trust it; it
-   connects to Neovim after that.
-2. Select code and press `<leader>as`. Focus jumps to Claude so you can type
-   what to do with it.
+   connects to Neovim after that. `<leader>ao` starts another agent instead.
+2. Select code and press `<leader>as`. It goes to the agent you use (Claude or
+   any other), and focus jumps there so you can type what to do with it.
+   `<leader>aO` hides or shows the agent, `<leader>aq` closes it.
 3. When Claude asks before an edit, the edit opens inline in the file:
    `<leader>aa` (or `:w`) accepts it, `<leader>ad` rejects it.
 4. In auto mode, or with any other agent, edits land on disk right away. Each
@@ -104,20 +105,33 @@ to typing.
 
 ## Keymaps
 
-### Claude Code
+### Agents
+
+Start one:
 
 | Key | Action |
 |---|---|
-| `<leader>ac` | toggle Claude |
-| `<leader>af` | focus Claude |
-| `<leader>ar` | pick a saved session of any agent in this folder and resume it (see below) |
-| `<leader>aC` | continue the last Claude session |
-| `<leader>am` | pick a model |
-| `<leader>aq` | close Claude |
-| `<leader>ab` | add the current buffer to the context |
-| `<leader>as` | send the selection (visual) / add the file (in a file explorer) |
-| `<leader>aa` | accept the proposed diff |
-| `<leader>ad` | reject the proposed diff |
+| `<leader>ac` | open or hide Claude Code |
+| `<leader>ao` | pick another installed agent (Codex, OpenCode, …) or a running session |
+
+These work on **the current agent, whichever it is**: the one whose window you
+are in, else the one you used last.
+
+| Key | Action |
+|---|---|
+| `<leader>af` | go to the agent's window |
+| `<leader>aO` | show or hide the agent's window |
+| `<leader>ah` | hide every agent window (the agents keep running) |
+| `<leader>aq` | close the agent (stops it); asks which one when several run and you are not in one |
+| `<leader>aQ` | close all agents |
+| `<leader>ab` / `<leader>aF` | add the current file |
+| `<leader>as` / `<leader>av` | send the selection (visual) / add the file under the cursor (in a file explorer) |
+| `<leader>ap` | prompt menu: explain, fix, review, tests, diagnostics |
+| `<leader>am` | change the model (Claude's picker; `/model` in Codex, `/models` in OpenCode) |
+| `<leader>ar` | pick a saved session of any agent in this folder and resume it (see above) |
+| `<leader>aC` | continue the latest session in this folder, whichever agent it belongs to |
+| `<leader>aa` | accept: Claude's proposed edit when you are in it, else keep the agent change under the cursor |
+| `<leader>ad` | reject: Claude's proposed edit when you are in it, else undo the agent change under the cursor |
 
 ### Live edits
 
@@ -142,16 +156,6 @@ in git counts as new, and undoing it offers to delete it. If you are typing in
 the editor window, the edited file is not pulled in front of you; you get a
 notification instead. While lazygit runs, or when a burst touches more than 30
 files (a checkout, a formatter), changed buffers are only reloaded.
-
-### Other agents
-
-| Key | Action |
-|---|---|
-| `<leader>ao` | pick an installed agent CLI or a running session |
-| `<leader>aO` | show or hide the agent window |
-| `<leader>ap` | prompt menu: explain, fix, review, tests, diagnostics |
-| `<leader>av` | send the selection (visual) |
-| `<leader>aF` | send the current file |
 
 ### Git
 
