@@ -1,8 +1,13 @@
 -- Agent development, Cursor-style: an AI agent in a side panel of the project.
 --
 -- Claude Code (coder/claudecode.nvim) is the main agent. It runs in a right
--- split, sees the open file and the selection, and proposes edits as Neovim
--- diffs: accept with <leader>aa (or :w), reject with <leader>ad.
+-- split, sees the open file and the selection, and when it asks before an
+-- edit, shows the edit inline in the file (removed lines red, new lines
+-- green): accept with <leader>aa (or :w), reject with <leader>ad.
+--
+-- Edits that apply without asking (auto mode, or any other agent) are shown
+-- live by lazyvim-agent.follow: the edited file opens in the editor window,
+-- the changes are marked inline, and each one can be kept or undone.
 --
 -- Any other agent CLI you have installed (Codex, OpenCode, Cursor Agent,
 -- Copilot, Gemini, Aider, ...) runs through folke/sidekick.nvim. Its Copilot
@@ -40,7 +45,7 @@ return {
 					split_width_percentage = 0.40,
 				},
 				diff_opts = {
-					layout = "vertical",
+					layout = "unified", -- one buffer, removed and added lines inline, like Cursor
 					open_in_new_tab = false,
 				},
 			})
@@ -74,7 +79,9 @@ return {
 				nes = { enabled = false },
 				copilot = { status = { enabled = false } },
 				cli = {
-					watch = true, -- reload buffers the agent changed on disk
+					-- lazyvim-agent.follow reloads changed files itself and needs to see
+					-- them before anything else reloads them
+					watch = false,
 					win = {
 						layout = "right",
 						split = { width = math.floor(vim.o.columns * 0.40) },
@@ -89,6 +96,30 @@ return {
 			{ "<leader>ap", function() require("sidekick.cli").prompt() end, mode = { "n", "x" }, desc = "Agent: prompt (explain, fix, review…)" },
 			{ "<leader>av", function() require("sidekick.cli").send({ msg = "{selection}" }) end, mode = "x", desc = "Agent: send selection" },
 			{ "<leader>aF", function() require("sidekick.cli").send({ msg = "{file}" }) end, desc = "Agent: send file" },
+		},
+	},
+
+	-- Live view of agent edits: lua/lazyvim-agent/follow.lua in this repo.
+	-- This spec has no URL: it adds to the spec you import this repo with.
+	{
+		"lazyvim-agent",
+		event = "VeryLazy",
+		opts = {},
+		config = function(_, opts)
+			require("lazyvim-agent.follow").setup(opts)
+		end,
+		-- stylua: ignore
+		keys = {
+			{ "]x", function() require("lazyvim-agent.follow").jump(1) end, desc = "Next agent change" },
+			{ "[x", function() require("lazyvim-agent.follow").jump(-1) end, desc = "Prev agent change" },
+			{ "<leader>ay", function() require("lazyvim-agent.follow").keep("hunk") end, desc = "Agent change: keep" },
+			{ "<leader>an", function() require("lazyvim-agent.follow").undo("hunk") end, desc = "Agent change: undo" },
+			{ "<leader>aY", function() require("lazyvim-agent.follow").keep("file") end, desc = "Agent changes: keep file" },
+			{ "<leader>aN", function() require("lazyvim-agent.follow").undo("file") end, desc = "Agent changes: undo file" },
+			{ "<leader>aA", function() require("lazyvim-agent.follow").keep("all") end, desc = "Agent changes: keep all" },
+			{ "<leader>al", function() require("lazyvim-agent.follow").list() end, desc = "Agent changes: list" },
+			{ "<leader>aw", function() require("lazyvim-agent.follow").toggle_follow() end, desc = "Agent: follow edits on/off" },
+			{ "<leader>aW", function() require("lazyvim-agent.follow").toggle_watch() end, desc = "Agent: watch project (agent outside nvim)" },
 		},
 	},
 }

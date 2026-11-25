@@ -8,20 +8,25 @@ git tools to review what the agent did.
 ![Claude Code in a right split next to neo-tree and the code](docs/screenshots/claude-panel.png)
 <sub>Claude Code in the right split: the file tree and code on the left, Claude's edit on the right.</sub>
 
-This is not a new plugin. It is a ready, tested set of
+This is mostly not a new plugin. It is a ready, tested set of
 [lazy.nvim](https://github.com/folke/lazy.nvim) specs that wires three
-existing plugins together with keymaps that don't conflict:
+existing plugins together with keymaps that don't conflict, plus one small
+module of its own:
 
 - **[claudecode.nvim](https://github.com/coder/claudecode.nvim)**: Claude Code
   in a right split (40% wide). It connects to Neovim the same way the VS Code
-  extension does: it knows the current file and selection, and shows its edits
-  as native Neovim diffs that you accept or reject. You can edit the proposed
-  change before accepting it.
+  extension does: it knows the current file and selection. When Claude asks
+  before an edit, the edit shows up inline in the file (removed lines red, new
+  lines green) for you to accept or reject.
+- **Live edits** (this repo's `lazyvim-agent.follow`): when an agent changes
+  files without asking (Claude's auto mode, or any other agent), you watch it
+  happen in the editor. The edited file opens on the left at the spot that
+  changed, the changes stay marked inline, and you keep or undo each one, the
+  way Cursor's Keep / Undo works.
 - **[sidekick.nvim](https://github.com/folke/sidekick.nvim)**: any other agent
   CLI you have installed (Codex, OpenCode, Cursor Agent, Copilot CLI, Gemini,
   Aider, …) in the same kind of panel, with a prompt menu (explain, fix,
-  review, write tests, fix diagnostics). Buffers reload when the agent changes
-  files on disk.
+  review, write tests, fix diagnostics).
 - **[diffview.nvim](https://github.com/sindrets/diffview.nvim)**: every
   uncommitted change in one tab, so you can review an agent's work before you
   commit it. Plus file and repo history, an inline blame toggle and treesitter
@@ -73,9 +78,14 @@ To take only one half, import a single file:
    connects to Neovim after that.
 2. Select code and press `<leader>as`. Focus jumps to Claude so you can type
    what to do with it.
-3. When Claude wants to change a file, a diff opens: `<leader>aa` (or `:w`)
-   accepts it, `<leader>ad` rejects it.
-4. Press `<leader>gv` to review everything that changed, then commit from
+3. When Claude asks before an edit, the edit opens inline in the file:
+   `<leader>aa` (or `:w`) accepts it, `<leader>ad` rejects it.
+4. In auto mode, or with any other agent, edits land on disk right away. Each
+   edited file opens on the left at the changed spot, with removed lines shown
+   in red above the new green ones. Put the cursor on a change and press
+   `<leader>ay` to keep it or `<leader>an` to undo it; `]x` / `[x` walk through
+   all changes, across files.
+5. Press `<leader>gv` to review everything that changed, then commit from
    lazygit with `<leader>gg`.
 
 `<C-h>` moves from the agent to your code, `<C-l>` moves back. To scroll or
@@ -98,6 +108,30 @@ to typing.
 | `<leader>as` | send the selection (visual) / add the file (in a file explorer) |
 | `<leader>aa` | accept the proposed diff |
 | `<leader>ad` | reject the proposed diff |
+
+### Live edits
+
+| Key | Action |
+|---|---|
+| `]x` / `[x` | next / previous agent change (moves on to the next file) |
+| `<leader>ay` | keep the change under the cursor |
+| `<leader>an` | undo the change under the cursor (writes the file back) |
+| `<leader>aY` / `<leader>aN` | keep / undo every change in this file |
+| `<leader>aA` | keep all changes in all files |
+| `<leader>al` | list all agent changes |
+| `<leader>aw` | follow on/off: open each edited file, or only mark the changes |
+| `<leader>aW` | watch the project by hand, for an agent running outside Neovim |
+
+The same actions are available as `:AgentChanges list|next|prev|keep|undo|…`.
+
+How it works: while an agent CLI runs in a Neovim terminal, the project folder
+(git-tracked and untracked, non-ignored files) is watched. A change Neovim did
+not write is compared with the file as it was before the agent first touched
+it: the open buffer, or the git index version. A file that was neither open nor
+in git counts as new, and undoing it offers to delete it. If you are typing in
+the editor window, the edited file is not pulled in front of you; you get a
+notification instead. While lazygit runs, or when a burst touches more than 30
+files (a checkout, a formatter), changed buffers are only reloaded.
 
 ### Other agents
 
@@ -139,8 +173,18 @@ return {
 
   -- other agents in a floating window
   { "folke/sidekick.nvim", opts = { cli = { win = { layout = "float" } } } },
+
+  -- live edits: mark changes, but don't open the edited files
+  { "lazyvim-agent", opts = { follow = false } },
 }
 ```
+
+Live edit options and their defaults are at the top of
+[`lua/lazyvim-agent/follow.lua`](lua/lazyvim-agent/follow.lua): `watch`,
+`follow`, the `agents` list of terminal commands, `pause_for`, `max_batch`,
+`max_file_size` and `max_dirs`. The colors are the `LazyVimAgentAdd`,
+`LazyVimAgentDelete` and `LazyVimAgentHint` highlight groups; by default they
+follow your colorscheme's diff colors.
 
 The upstream READMEs list every option:
 [claudecode.nvim](https://github.com/coder/claudecode.nvim#advanced-configuration),
@@ -149,12 +193,12 @@ The upstream READMEs list every option:
 
 ## Credits
 
-All of the real work is done by
+Almost all of the real work is done by
 [coder/claudecode.nvim](https://github.com/coder/claudecode.nvim),
 [folke/sidekick.nvim](https://github.com/folke/sidekick.nvim),
 [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim),
 [LazyVim](https://github.com/LazyVim/LazyVim) and its git setup. This repo
-only configures them to work together.
+configures them to work together and adds the live-edit view.
 
 ## License
 
