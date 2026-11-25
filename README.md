@@ -88,6 +88,9 @@ To take only one half, import a single file:
 5. Press `<leader>gv` to review everything that changed, then commit from
    lazygit with `<leader>gg`.
 
+![Claude Code in auto mode with its edits highlighted in the editor](docs/screenshots/live-claude-auto.png)
+<sub>Claude Code in auto mode: everything it has written in orbit.py since its first edit stays highlighted until you keep or undo it.</sub>
+
 `<C-h>` moves from the agent to your code, `<C-l>` moves back. To scroll or
 copy in the agent window, leave terminal mode with `<C-\><C-n>`; `i` returns
 to typing.
