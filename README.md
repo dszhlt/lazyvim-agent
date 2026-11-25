@@ -91,6 +91,13 @@ To take only one half, import a single file:
 ![Claude Code in auto mode with its edits highlighted in the editor](docs/screenshots/live-claude-auto.png)
 <sub>Claude Code in auto mode: everything it has written in orbit.py since its first edit stays highlighted until you keep or undo it.</sub>
 
+To pick up earlier work, press `<leader>ar` (or run `:AgentSessions`). It lists
+the sessions Claude Code, Codex and OpenCode saved for the current folder, newest
+first, with their names or first prompts. The one you pick opens where that agent
+normally lives: Claude through claudecode (still connected to Neovim), Codex and
+OpenCode in a sidekick panel. If that agent already runs a session here, you are
+asked before it is closed.
+
 `<C-h>` moves from the agent to your code, `<C-l>` moves back. To scroll or
 copy in the agent window, leave terminal mode with `<C-\><C-n>`; `i` returns
 to typing.
@@ -103,8 +110,8 @@ to typing.
 |---|---|
 | `<leader>ac` | toggle Claude |
 | `<leader>af` | focus Claude |
-| `<leader>ar` | resume an earlier session |
-| `<leader>aC` | continue the last session |
+| `<leader>ar` | pick a saved session of any agent in this folder and resume it (see below) |
+| `<leader>aC` | continue the last Claude session |
 | `<leader>am` | pick a model |
 | `<leader>aq` | close Claude |
 | `<leader>ab` | add the current buffer to the context |
